@@ -10,10 +10,20 @@ pipeline {
         }
         stage('Build Frontend Image') {
             steps {
-                // We must tell Jenkins to go into the app-source folder where the Dockerfile lives
                 dir('app-source') {
-                    // This command builds the container and tags it with the name 'multishop-frontend'
-                    sh 'docker build -t multishop-frontend:latest .'
+                    // We tag the image with YOUR Docker Hub username
+                    sh 'docker build -t dhayag/multishop-frontend:latest .'
+                }
+            }
+        }
+        stage('Push to Docker Hub') {
+            steps {
+                // This securely opens the Jenkins vault to grab your token
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                    // 1. Log in to Docker Hub using the hidden credentials
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    // 2. Push the image to your public repository
+                    sh 'docker push dhayag/multishop-frontend:latest'
                 }
             }
         }
