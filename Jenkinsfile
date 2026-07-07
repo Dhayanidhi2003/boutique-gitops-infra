@@ -4,17 +4,17 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // This tells Jenkins to download your code from GitHub
                 checkout scm
                 echo 'Code successfully pulled from GitHub!'
             }
         }
-        stage('Test Server Tools') {
+        stage('Build Frontend Image') {
             steps {
-                // This proves Jenkins can use the tools we installed via PuTTY
-                sh 'docker --version'
-                sh 'terraform --version'
-                sh 'aws --version'
+                // We must tell Jenkins to go into the app-source folder where the Dockerfile lives
+                dir('app-source') {
+                    // This command builds the container and tags it with the name 'multishop-frontend'
+                    sh 'docker build -t multishop-frontend:latest .'
+                }
             }
         }
     }
